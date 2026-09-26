@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#c91524">
+<meta name="description" content="WorkFlow worker transport scheduling">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="styles.css">
+<title>WorkFlow — Worker Transport</title>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><img class="brand-logo" src="icon.svg" alt="WorkFlow logo"><div><strong>WorkFlow</strong><small>Worker Transport</small></div></div>
+  <div class="top-actions">
+    <select id="roleSelect" class="role-select" aria-label="Dashboard role">
+      <option value="worker">Worker</option>
+      <option value="driver">Driver</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙</button>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="eyebrow">SAFE • SIMPLE • ON TIME</div>
+  <h1>Plan your work ride.</h1>
+  <p>Schedule a safe trip from home to work with your WorkFlow vehicle.</p>
+</section>
+
+<section id="workerDashboard">
+<section class="card">
+<h2>Schedule a ride</h2>
+<label>Pickup address
+<input id="pickup" autocomplete="street-address" placeholder="Start typing your home address">
+<small class="hint">Choose a Google Maps suggestion for the most accurate location.</small>
+</label>
+<label>Work destination
+<input id="destination" autocomplete="street-address" placeholder="Start typing the workplace address">
+<small class="hint">Choose a Google Maps suggestion for the most accurate location.</small>
+</label>
+<div class="grid">
+<label>Date<input id="date" type="date"></label>
+<label>Pickup time<input id="time" type="time"></label>
+</div>
+<div class="grid">
+<label>Passengers<select id="passengers"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option selected>7</option></select></label>
+<label>Trip type<select id="tripType"><option value="one">One way</option><option value="return">Return</option></select></label>
+</div>
+<div id="manualDistanceWrap" class="manual-distance hidden">
+<label>Route distance (km) — fallback<input id="manualDistance" type="number" min="0.1" step="0.1" placeholder="Only needed if Maps is unavailable"></label>
+</div>
+<button id="calculateBtn" class="primary">Calculate route & fare</button>
+<p id="status" class="status"></p>
+</section>
+
+<section id="result" class="card hidden">
+<h2>Trip estimate</h2>
+<div class="route"><span class="dot"></span><div><small>Pickup</small><strong id="resultPickup"></strong></div></div>
+<div class="route"><span class="dot red"></span><div><small>Work</small><strong id="resultDestination"></strong></div></div>
+<div class="stats">
+<div><span>Distance</span><strong id="distance"></strong></div>
+<div><span>Fare / passenger</span><strong id="fare"></strong></div>
+<div><span>Total</span><strong id="total"></strong></div>
+</div>
+<a id="mapsLink" class="secondary" target="_blank" rel="noopener">Open route in Google Maps</a>
+<button id="confirmBtn" class="primary">Confirm ride</button>
+</section>
+
+<section class="card">
+<div class="section-head"><h2>Upcoming rides</h2><span class="badge" id="rideCount">0</span></div>
+<div id="rides" class="rides"><p class="muted">No rides scheduled yet.</p></div>
+</section>
+</section>
+
+<section id="driverDashboard" class="dashboard hidden">
+<section class="card">
+<div class="section-head"><div><div class="eyebrow dark">DRIVER</div><h2>Driver dashboard</h2></div><span class="badge" id="driverStatus">Available</span></div>
+<label>Driver<select id="driverSelect"></select></label>
+<div id="driverSummary" class="driver-summary"></div>
+</section>
+<section class="card"><h2>Assigned rides</h2><div id="driverRides"><p class="muted">No rides assigned yet.</p></div></section>
+</section>
+
+<section id="adminDashboard" class="dashboard hidden">
+<section class="card">
+<div class="eyebrow dark">ADMINISTRATION</div><h2>WorkFlow control centre</h2>
+<div class="admin-grid">
+<div><span>Scheduled rides</span><strong id="adminRideCount">0</strong></div>
+<div><span>Drivers</span><strong id="adminDriverCount">0</strong></div>
+<div><span>Passengers booked</span><strong id="adminPassengerCount">0</strong></div>
+</div>
+</section>
+
+<section class="card">
+<div class="section-head"><h2>Pricing</h2><button id="adminPricingBtn" class="small-btn">Edit</button></div>
+<p class="muted">Fuel R<span id="adminFuel">24</span>/L • <span id="adminConsumption">12</span> L/100km • Running R<span id="adminRunning">1.50</span>/km • Margin <span id="adminMargin">25</span>%</p>
+</section>
+
+<section class="card">
+<div class="section-head"><h2>Drivers</h2><button id="addDriverBtn" class="small-btn">Add driver</button></div>
+<div id="driverList"><p class="muted">No drivers added yet.</p></div>
+</section>
+
+<section class="card">
+<h2>Ride management</h2>
+<div id="adminRides"><p class="muted">No rides yet.</p></div>
+</section>
+
+<section class="card">
+<h2>Google Maps</h2>
+<p class="muted">Add a restricted browser API key to enable accurate Google address suggestions and route distance calculation.</p>
+<label>Google Maps API key<input id="googleKey" type="password" autocomplete="off" placeholder="Paste your restricted browser key"></label>
+<button id="saveGoogleKey" class="primary">Save Google Maps key</button>
+<p class="tiny">Use HTTP referrer restrictions and API restrictions in Google Cloud. Do not use an unrestricted secret key in this public app.</p>
+</section>
+</section>
+</main>
+
+<div id="settingsModal" class="modal hidden">
+<div class="modal-card">
+<div class="section-head"><h2>Pricing settings</h2><button id="closeSettings" class="icon-btn dark-btn">×</button></div>
+<p class="muted">Set the real costs for your Suzuki 7-seater.</p>
+<label>Fuel price (R/litre)<input id="fuelPrice" type="number" step="0.01"></label>
+<label>Vehicle consumption (L/100 km)<input id="consumption" type="number" step="0.1"></label>
+<label>Maintenance & operating cost (R/km)<input id="runningCost" type="number" step="0.01"></label>
+<label>Profit margin (%)<input id="margin" type="number" step="1"></label>
+<label>Minimum fare per passenger (R)<input id="minimumFare" type="number" step="1"></label>
+<button id="saveSettings" class="primary">Save settings</button>
+</div>
+</div>
+
+<div id="driverModal" class="modal hidden">
+<div class="modal-card">
+<div class="section-head"><h2>Add driver</h2><button id="closeDriverModal" class="icon-btn dark-btn">×</button></div>
+<label>Driver name<input id="driverName" placeholder="Full name"></label>
+<label>Phone<input id="driverPhone" type="tel" placeholder="e.g. 082 123 4567"></label>
+<label>Vehicle<input id="driverVehicle" placeholder="Suzuki 7-seater"></label>
+<label>Seats<input id="driverSeats" type="number" min="1" max="15" value="7"></label>
+<button id="saveDriver" class="primary">Save driver</button>
+</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
